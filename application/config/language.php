@@ -6,7 +6,7 @@ $config['language_field'] = 'lang';
 /*
  * default language output
  */
-$config['language_default_key'] = 'en-us';
+$config['language_key'] = 'en-us';
 /*
  * default language list to support
  */
