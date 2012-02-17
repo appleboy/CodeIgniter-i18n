@@ -126,7 +126,7 @@ class MY_Lang extends CI_Lang
         $this->_language_field = $CI->config->item('language_field');
         $this->_language_key = $CI->config->item('language_key');
 
-        if ($CI->input->get_post('lang') != FALSE)
+        if ($CI->input->get_post($this->_language_field) != FALSE)
         {
             $lang = strtolower($CI->input->get_post($this->_language_field));
 
