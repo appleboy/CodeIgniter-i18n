@@ -37,60 +37,49 @@ class MY_Lang extends CI_Lang
         // add prefix on language key
         $this->_language_prefix = $langfile;
 
-        if ($add_suffix == TRUE)
-        {
+        if ($add_suffix == TRUE) {
             $langfile = str_replace('_lang.', '', $langfile).'_lang';
         }
 
         $langfile .= '.php';
 
-        if (in_array($langfile, $this->is_loaded, TRUE))
-        {
+        if (in_array($langfile, $this->is_loaded, TRUE)) {
             return;
         }
 
         $config =& get_config();
 
-        if ($idiom == '')
-        {
+        if ($idiom == '') {
             $deft_lang = $this->_language_folder;
             $idiom = ($deft_lang == '') ? 'english' : $deft_lang;
         }
 
         // Determine where the language file is and load it
-        if ($alt_path != '' && file_exists($alt_path.'language/'.$idiom.'/'.$langfile))
-        {
+        if ($alt_path != '' && file_exists($alt_path.'language/'.$idiom.'/'.$langfile)) {
             include($alt_path.'language/'.$idiom.'/'.$langfile);
-        }
-        else
-        {
+        } else {
             $found = FALSE;
 
-            foreach (get_instance()->load->get_package_paths(TRUE) as $package_path)
-            {
-                if (file_exists($package_path.'language/'.$idiom.'/'.$langfile))
-                {
+            foreach (get_instance()->load->get_package_paths(TRUE) as $package_path) {
+                if (file_exists($package_path.'language/'.$idiom.'/'.$langfile)) {
                     include($package_path.'language/'.$idiom.'/'.$langfile);
                     $found = TRUE;
                     break;
                 }
             }
 
-            if ($found !== TRUE)
-            {
+            if ($found !== TRUE) {
                 show_error('Unable to load the requested language file: language/'.$idiom.'/'.$langfile);
             }
         }
 
-
-        if ( ! isset($lang))
-        {
+        if ( ! isset($lang)) {
             log_message('error', 'Language file contains no data: language/'.$idiom.'/'.$langfile);
+
             return;
         }
 
-        if ($return == TRUE)
-        {
+        if ($return == TRUE) {
             return $lang;
         }
 
@@ -101,14 +90,17 @@ class MY_Lang extends CI_Lang
         unset($lang);
 
         log_message('debug', 'Language file loaded: language/'.$idiom.'/'.$langfile);
+
         return TRUE;
     }
 
     private function _set_prefix($lang = array())
     {
         $output = array();
-        foreach ($lang as $key => $val)
-        {
+        foreach ($lang as $key => $val) {
+            // legacy support
+            $output[$key] = $val;
+            // add prefix key
             $key = $this->_language_prefix . "." . $key;
             $output[$key] = $val;
         }
@@ -126,30 +118,29 @@ class MY_Lang extends CI_Lang
         $this->_language_field = $CI->config->item('language_field');
         $this->_language_key = $CI->config->item('language_key');
 
-        if ($CI->input->get_post($this->_language_field) != FALSE)
-        {
+        if ($CI->input->get_post($this->_language_field) != FALSE) {
             $lang = strtolower($CI->input->get_post($this->_language_field));
 
             // check lang is exist in group
-            if (array_key_exists($lang, $this->_language_list))
-            {
+            if (array_key_exists($lang, $this->_language_list)) {
                 $CI->session->set_userdata($this->_language_field, $lang);
             }
         }
 
         // set default browser language
-        if (!$CI->session->userdata($this->_language_field))
-        {
+        if (!$CI->session->userdata($this->_language_field)) {
             $CI->session->set_userdata($this->_language_field, $this->_default_lang());
         }
 
         $this->_language_folder = $this->_language_list[$CI->session->userdata($this->_language_field)];
+
         return $this;
     }
 
     private function _default_lang()
     {
         $browser_lang = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? strtolower(strtok(strip_tags($_SERVER['HTTP_ACCEPT_LANGUAGE']), ',')) : '';
+
         return (!empty($browser_lang) and array_key_exists($browser_lang, $this->_language_list)) ? strtolower($browser_lang) : $this->_language_key;
     }
 }
